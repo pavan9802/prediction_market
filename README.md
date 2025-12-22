@@ -18,7 +18,6 @@ This document describes the design of a real-time binary prediction market backe
 - [Persistence Strategy](#persistence-strategy)
 - [Scaling Considerations](#scaling-considerations)
 - [Recovery & Fault Tolerance](#recovery--fault-tolerance)
-- [Interview / Resume-Friendly Explanation](#interview--resume-friendly-explanation)
 
 ---
 
