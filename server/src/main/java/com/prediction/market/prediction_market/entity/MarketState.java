@@ -21,5 +21,6 @@ public class MarketState {
     private double liquidityB;
     private double currentPrice;
     private String status; // OPEN, RESOLVED, etc.
-    private long lastUpdatedTimestamp;
+    long lastTradeTimestamp;      // updated by MarketEngine
+    long lastPersistedTimestamp;  // updated by MarketStore
 }
