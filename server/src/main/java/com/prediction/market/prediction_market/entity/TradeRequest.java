@@ -1,4 +1,4 @@
-package com.prediction.market.prediction_market.execution;
+package com.prediction.market.prediction_market.entity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

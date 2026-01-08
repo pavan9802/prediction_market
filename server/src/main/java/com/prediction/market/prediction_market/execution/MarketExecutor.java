@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.prediction.market.prediction_market.engine.MarketEngine;
+import com.prediction.market.prediction_market.entity.TradeRequest;
 
 public class MarketExecutor {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -15,7 +16,6 @@ public class MarketExecutor {
 
     public void submit(TradeRequest request) {
         executor.submit(() -> marketEngine.executeTrade(
-            request
-        ));
+                request));
     }
 }

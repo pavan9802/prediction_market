@@ -4,11 +4,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import com.prediction.market.prediction_market.entity.MarketState;
 
-@Component
 @EnableScheduling
 public class MarketStore {
     private ConcurrentHashMap<String, MarketState> markets = new ConcurrentHashMap<>();
@@ -16,10 +14,10 @@ public class MarketStore {
 
     public MarketState getMarketOrCreate(String marketId) {
         return markets.computeIfAbsent(marketId, id -> {
-        //  load from DB
-        return null; 
+            // load from DB
+            return null;
         });
-         
+
     }
 
     public MarketState getMarketById(String marketId) {
@@ -36,7 +34,7 @@ public class MarketStore {
 
         for (MarketState market : markets.values()) {
             if (now - market.getLastTradeTimestamp() > IDLE_FLUSH_THRESHOLD_MS &&
-                market.getLastPersistedTimestamp() < market.getLastTradeTimestamp()) {
+                    market.getLastPersistedTimestamp() < market.getLastTradeTimestamp()) {
                 // Async persistMarket(market);
                 market.setLastPersistedTimestamp(now);
             }

@@ -1,4 +1,8 @@
 package com.prediction.market.prediction_market.entity;
+
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // required by JPA
 @AllArgsConstructor
 @Builder
+@Document(collection = "positions")
+@CompoundIndex(name = "user_market_idx", def = "{'userId':1,'marketId':1}", unique = true)
 public class Position {
     String marketId;
     int yesShares;
@@ -40,4 +46,3 @@ public class Position {
         return noShares;
     }
 }
-

@@ -1,5 +1,7 @@
 package com.prediction.market.prediction_market.entity;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,8 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//@Entity
-//@Table(name = "markets")
+//@
+@Document(collection = "markets")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // required by JPA
@@ -21,6 +23,6 @@ public class MarketState {
     private double liquidityB;
     private double currentPrice;
     private String status; // OPEN, RESOLVED, etc.
-    long lastTradeTimestamp;      // updated by MarketEngine
-    long lastPersistedTimestamp;  // updated by MarketStore
+    long lastTradeTimestamp; // updated by MarketEngine
+    long lastPersistedTimestamp; // updated by MarketStore
 }
