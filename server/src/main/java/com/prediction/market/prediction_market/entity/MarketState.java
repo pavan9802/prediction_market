@@ -1,6 +1,7 @@
 package com.prediction.market.prediction_market.entity;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,12 +18,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class MarketState {
+    @MongoId
+    private String id;
+
     private String marketId;
     private double yesShares;
     private double noShares;
     private double liquidityB;
     private double currentPrice;
     private String status; // OPEN, RESOLVED, etc.
-    long lastTradeTimestamp; // updated by MarketEngine
-    long lastPersistedTimestamp; // updated by MarketStore
+    private long lastTradeTimestamp; // updated by MarketEngine
+    private long lastPersistedTimestamp; // updated by MarketStore
 }

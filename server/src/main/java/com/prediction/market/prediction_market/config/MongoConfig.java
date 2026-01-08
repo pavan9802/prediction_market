@@ -46,7 +46,6 @@ public class MongoConfig {
     @Bean
     MongoClient mongoClient(MongoProperties mongoProperties) {
         return MongoClients.create(mongoProperties.getUri());
-
     }
 
 }

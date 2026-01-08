@@ -2,6 +2,7 @@ package com.prediction.market.prediction_market.entity;
 
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,9 +19,12 @@ import lombok.Setter;
 @Document(collection = "positions")
 @CompoundIndex(name = "user_market_idx", def = "{'userId':1,'marketId':1}", unique = true)
 public class Position {
-    String marketId;
-    int yesShares;
-    int noShares;
+    @MongoId
+    private String id;
+    private String marketId;
+    private int yesShares;
+    private int noShares;
+    private String userId;
 
     public Position(String marketId) {
         this.marketId = marketId;
