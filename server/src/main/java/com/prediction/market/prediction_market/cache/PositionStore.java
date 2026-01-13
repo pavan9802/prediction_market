@@ -12,15 +12,15 @@ public class PositionStore {
     public User getOrCreateUser(String userId) {
         return users.computeIfAbsent(
                 userId,
-                id -> new User(id, 1000.0) // starter balance
+                id -> null // starter balance
         );
     }
 
-    public void createUser(String userId, double startingBalance) {
-        users.putIfAbsent(
-                userId,
-                new User(userId, startingBalance));
-    }
+    // public void createUser(String userId, double startingBalance) {
+    // users.putIfAbsent(
+    // userId,
+    // new User(userId, startingBalance));
+    // }
 
     public Position getOrCreatePosition(String userId, String marketId) {
         return positions

@@ -19,6 +19,7 @@ import lombok.Setter;
 public class User {
     @MongoId
     private String id;
+
     private String userId;
     private double balance;
 
