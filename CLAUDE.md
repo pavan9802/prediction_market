@@ -35,7 +35,9 @@ mvn clean
     ├── engine/                       # Core execution engines (MarketEngine, PricingEngine)
     ├── entity/                       # Domain models and MongoDB documents
     ├── execution/                    # Per-market thread isolation (MarketExecutor, MarketExecutionRegistry)
+    ├── ratelimit/                    # API rate limiting (token bucket algorithm)
     ├── repositories/                 # MongoDB repositories
+    ├── security/                     # Authentication and security filters
     └── service/                      # Business logic services
 ```
 
@@ -179,6 +181,79 @@ getMarketOrCreate(marketId)  // Lazy load + cache
 markMarketModified(marketId)  // Mark for flush
 flushIdleMarkets()  // @Scheduled flush (1 sec idle)
 ```
+
+### API Rate Limiting (Token Bucket)
+
+**Request-level rate limiting protects the API from abuse and ensures fair resource allocation.**
+
+**Architecture:**
+```
+HTTP Request
+  → RateLimitFilter (checks rate limit)
+    → JwtAuthenticationFilter (authenticates user)
+      → Controller (handles request)
+```
+
+**Components:**
+- `RateLimiter` interface - Pluggable rate limiting strategies
+- `TokenBucketRateLimiter` - Token bucket algorithm implementation
+- `RateLimitFilter` - Servlet filter that enforces limits
+- `RateLimitConfig` - Configuration and scheduled cleanup
+
+**Token Bucket Algorithm:**
+```java
+// Each identifier (userId or IP) has its own bucket
+Bucket {
+  capacity: 100        // Max tokens (burst capacity)
+  refillRate: 10/sec   // Tokens added per second (sustained rate)
+  tokens: current      // Available tokens
+  lastRefillTime: ts   // Last refill timestamp
+}
+
+// On each request:
+1. Refill tokens based on elapsed time: tokens += (now - lastRefillTime) * refillRate
+2. If tokens >= 1: consume 1 token, allow request
+3. If tokens < 1: reject with 429, return retry-after time
+```
+
+**Rate Limiting Strategy:**
+- **Authenticated users:** Rate limit by `userId` (from JWT token)
+- **Unauthenticated users:** Rate limit by `IP address` (handles X-Forwarded-For)
+- **Exempted paths:** `/auth/` (login endpoints not rate limited)
+
+**Default Configuration:**
+- Capacity: 100 requests (burst)
+- Refill rate: 10 requests/second (600/minute sustained)
+- Cleanup: Every 5 minutes (removes idle buckets)
+
+**HTTP Response:**
+- **Success:** Adds `X-RateLimit-Identifier` header
+- **Rate limited (429):**
+  ```json
+  {
+    "error": "Rate limit exceeded",
+    "identifier": "user:alice",
+    "retryAfter": 5
+  }
+  ```
+  - `Retry-After` header: Seconds until next token
+  - `X-RateLimit-Identifier` header: Shows rate limit key
+
+**Thread Safety:**
+- Uses `ConcurrentHashMap` for buckets (lock-free reads)
+- Synchronized bucket operations (refill, consume)
+- No cross-bucket locks (each user/IP isolated)
+
+**Memory Management:**
+- Scheduled cleanup removes idle buckets (>5 min since last use)
+- Only full buckets are eligible for cleanup
+- Active users remain in memory for fast access
+
+**Production Considerations:**
+- In-memory storage (single server only)
+- For multi-server: replace with Redis-based implementation
+- For tiered limits: check user tier before applying limit
+- For endpoint-specific limits: add path-based rate limiters
 
 ## Trade Execution Flow (Step-by-Step)
 
@@ -327,6 +402,7 @@ spring.mongodb.database=prediction-market
 3. **For balance updates:** ALWAYS append to ledger first, then async cache update
 4. **For idempotency:** Add unique nonce constraint on new write operations
 5. **For validation:** Add checks to `OrderValidator` or create similar validator
+6. **For rate limiting changes:** Update `RateLimitConfig` for limits, add paths to exemption list if needed
 
 ### When Modifying Execution Flow
 
@@ -341,6 +417,7 @@ spring.mongodb.database=prediction-market
 2. **Race condition?** Check atomic repository methods return count > 0
 3. **Duplicate execution?** Verify nonce uniqueness and idempotency checks
 4. **Price incorrect?** Verify LMSR inputs (yesShares, noShares, liquidityB)
+5. **Rate limit issues?** Check `X-RateLimit-Identifier` header to see which key is being limited
 
 ### Testing Gaps (Opportunities)
 
@@ -350,6 +427,8 @@ spring.mongodb.database=prediction-market
 - No tests for idempotency (duplicate nonce handling)
 - No tests for per-market thread isolation
 - No tests for cache flush behavior
+- No tests for rate limiter token bucket algorithm
+- No tests for rate limit enforcement (429 responses)
 
 ## Technology Stack
 
