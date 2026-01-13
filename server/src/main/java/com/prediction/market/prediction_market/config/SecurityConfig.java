@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.prediction.market.prediction_market.security.JwtAuthenticationFilter;
 import com.prediction.market.prediction_market.security.JwtUtil;
-import com.prediction.market.prediction_market.security.RateLimitFilter;
+
 
 @Configuration
 public class SecurityConfig {
@@ -18,11 +18,6 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
         return new JwtAuthenticationFilter(jwtUtil);
-    }
-
-    @Bean
-    RateLimitFilter rateLimitFilter() {
-        return new RateLimitFilter();
     }
 
     @Bean
