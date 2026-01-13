@@ -3,6 +3,7 @@ package com.prediction.market.prediction_market.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.prediction.market.prediction_market.ratelimit.RateLimitFilter;
 import com.prediction.market.prediction_market.security.JwtAuthenticationFilter;
 import com.prediction.market.prediction_market.security.JwtUtil;
 
@@ -22,7 +23,10 @@ public class SecurityConfig {
 
     @Bean
     public com.prediction.market.prediction_market.security.SecurityConfig securityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter) {
-        return new com.prediction.market.prediction_market.security.SecurityConfig(jwtAuthenticationFilter);
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            RateLimitFilter rateLimitFilter) {
+        return new com.prediction.market.prediction_market.security.SecurityConfig(
+                jwtAuthenticationFilter,
+                rateLimitFilter);
     }
 }
