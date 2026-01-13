@@ -7,18 +7,24 @@ import com.prediction.market.prediction_market.cache.MarketStore;
 import com.prediction.market.prediction_market.cache.PositionStore;
 import com.prediction.market.prediction_market.engine.MarketEngine;
 import com.prediction.market.prediction_market.engine.PricingEngine;
+import com.prediction.market.prediction_market.repositories.MarketStateRepository;
+import com.prediction.market.prediction_market.repositories.PositionRepository;
+import com.prediction.market.prediction_market.repositories.TransactionRepository;
+import com.prediction.market.prediction_market.repositories.UserRepository;
+import com.prediction.market.prediction_market.service.BalanceService;
+import com.prediction.market.prediction_market.service.OrderExecutionService;
 
 @Configuration
 public class MarketConfig {
 
     @Bean
-    public MarketStore marketStore() {
-        return new MarketStore();
+    public MarketStore marketStore(MarketStateRepository marketStateRepository) {
+        return new MarketStore(marketStateRepository);
     }
 
     @Bean
-    public PositionStore positionStore() {
-        return new PositionStore();
+    public PositionStore positionStore(UserRepository userRepository, PositionRepository positionRepository) {
+        return new PositionStore(userRepository, positionRepository);
     }
 
     @Bean
@@ -27,8 +33,7 @@ public class MarketConfig {
     }
 
     @Bean
-    public MarketEngine marketEngine(MarketStore marketStore, PositionStore positionStore,
-            PricingEngine pricingEngine) {
-        return new MarketEngine(marketStore, positionStore, pricingEngine);
+    public MarketEngine marketEngine(OrderExecutionService orderExecutionService) {
+        return new MarketEngine(orderExecutionService);
     }
 }

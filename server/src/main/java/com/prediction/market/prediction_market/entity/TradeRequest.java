@@ -18,4 +18,10 @@ public class TradeRequest {
     String marketId;
     Integer size;
     String outcome; // "Yes" or "No"
+
+    /**
+     * Optional client-provided nonce for idempotency.
+     * If not provided, OrderExecutionService will generate one.
+     */
+    String nonce;
 }
