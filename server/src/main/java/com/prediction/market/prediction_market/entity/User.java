@@ -21,13 +21,23 @@ public class User {
     private String id;
 
     private String userId;
+
+    /**
+     * CACHED/DERIVED BALANCE - Not source of truth!
+     *
+     * The transactions ledger is the SOURCE OF TRUTH for balances.
+     * This field is a cached snapshot computed from the ledger for performance.
+     *
+     * To get the authoritative balance:
+     *   balanceService.computeBalanceFromLedger(userId)
+     *
+     * To update balance (ledger-first pattern):
+     *   1. Append transaction to ledger (transactionRepository.save())
+     *   2. Async recompute this cached value (balanceService.recomputeAndUpdateBalance())
+     *
+     * This cached value is reconciled with the ledger every 5 minutes.
+     *
+     * NEVER mutate this field directly for balance changes!
+     */
     private double balance;
-
-    public boolean hasSufficientBalance(double amount) {
-        return balance >= amount;
-    }
-
-    public void debit(double amount) {
-        balance -= amount;
-    }
 }
